@@ -1,35 +1,18 @@
-import { readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'url';
-import { isMatching, P } from 'ts-pattern';
-
-const modulePattern = { id: P.number, name: P.string };
-
-type Module = P.infer<typeof modulePattern>;
+import { loadModule } from '../../utils/module'
 
 export default defineEventHandler((event) => {
-  const id = getRouterParam(event, 'id');
-  if (id === undefined) {
-    return createError('Could not get id');
-  }
+  const id = getRouterParam(event, 'id')
 
-  const moduleDir = resolve(
-    // @ts-expect-error
-    dirname(fileURLToPath(import.meta.url)),
-    '../../modules'
-  );
+  const parsedId = Number(id)
+  if (!Number.isInteger(parsedId)) {
+    return createError('Could not get id')
+  }
 
   try {
-    const file = readFileSync(join(moduleDir, `module-${id}.json`));
-    const parsed = JSON.parse(file.toString());
+    const module = loadModule(parsedId)
 
-    if (!isMatching(modulePattern, parsed)) {
-      return createError('Could not parse module from JSON');
-    }
-
-    return parsed;
+    return module
   } catch (e) {
-    return createError('Could not find module');
-    return e instanceof Error ? createError(e) : createError('Unknown error');
+    return e instanceof Error ? createError(e) : createError('Could not find module')
   }
-});
+})
