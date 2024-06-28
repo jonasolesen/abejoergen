@@ -4,7 +4,7 @@ const router = useRouter()
 const file = computed({
   get: () => {
     const file = router.currentRoute.value.query.file
-    return typeof file === 'string' ? file : undefined
+    return typeof file === 'string' ? file : 'first'
   },
   set: (val) => router.replace({ query: { file: val } }),
 })
@@ -19,7 +19,7 @@ watch(file, async (val) => {
 <template>
   <div class="space-y-4 p-6">
     <h1 class="font-bold">Documentation</h1>
-    <Button @click="$router.replace({ query: { file: 'first' } })">First</Button>
+    <Button @click="file = 'first'">First</Button>
     <!-- eslint-disable-next-line vue/no-v-html -->
     <div class="prose min-h-4 border border-slate-800" v-html="data" />
   </div>
